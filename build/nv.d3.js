@@ -6507,8 +6507,8 @@ nv.models.linePlusBarChart = function() {
         , transitionDuration = 0
         , state = nv.utils.state()
         , defaultState = null
-        , legendLeftAxisHint = ' (left axis)'
-        , legendRightAxisHint = ' (right axis)'
+        , legendLeftAxisHint = '' //' (left axis)'
+        , legendRightAxisHint = '' //' (right axis)'
         ;
 
     lines.clipEdge(true);
