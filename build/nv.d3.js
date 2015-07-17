@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2015-07-14 */
+/* nvd3 version 1.8.1-dev (https://github.com/novus/nvd3) 2015-07-17 */
 (function(){
 
 // set up main nv object
@@ -678,7 +678,7 @@ nv.nearestValueIndex = function (values, searchVal, threshold) {
                         tLeft = tooltipLeft(tooltipElem);
                         tTop = tooltipTop(tooltipElem);
                         if (tLeft + width > windowWidth) left = pos[0] - width - distance;
-                        if (tTop < scrollTop) top = scrollTop + 5;
+                        if (tTop < scrollTop) top = scrollTop - tTop + top;
                         if (tTop + height > scrollTop + windowHeight) top = scrollTop + windowHeight - tTop + top - height;
                         break;
                     case 'n':
@@ -7939,9 +7939,9 @@ nv.models.multiBar = function() {
                     })
                     .attr('height', function(d,i,j) {
                         if (!data[j].nonStackable) {
-                            return Math.max(Math.abs(y(d.y+d.y0) - y(d.y0)), 1);
+                            return Math.max(Math.abs(y(d.y+d.y0) - y(d.y0)), 0);
                         } else {
-                            return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0;
+                            return Math.max(Math.abs(y(getY(d,i)) - y(0)), 0) || 0;
                         }
                     })
                     .attr('x', function(d,i,j) {
@@ -8390,12 +8390,14 @@ nv.models.multiBarChart = function() {
 
     multibar.dispatch.on('elementMouseover.tooltip', function(evt) {
         evt.value = chart.x()(evt.data);
-        evt['series'] = {
-            key: evt.data.key,
-            value: chart.y()(evt.data),
-            color: evt.color
-        };
-        tooltip.data(evt).hidden(false);
+        if (!chart.stacked() || chart.y()(evt.data) > 0) {
+            evt['series'] = {
+                key: evt.data.key,
+                value: chart.y()(evt.data),
+                color: evt.color
+            };
+            tooltip.data(evt).hidden(false);
+        }
     });
 
     multibar.dispatch.on('elementMouseout.tooltip', function(evt) {
@@ -9301,14 +9303,14 @@ nv.models.multiChart = function() {
             var series1 = data.filter(function(d) {return !d.disabled && d.yAxis == 1})
                 .map(function(d) {
                     return d.values.map(function(d,i) {
-                        return { x: d.x, y: d.y }
+                        return { x: getX(d), y: getY(d) }
                     })
                 });
 
             var series2 = data.filter(function(d) {return !d.disabled && d.yAxis == 2})
                 .map(function(d) {
                     return d.values.map(function(d,i) {
-                        return { x: d.x, y: d.y }
+                        return { x: getX(d), y: getY(d) }
                     })
                 });
 
@@ -9347,7 +9349,7 @@ nv.models.multiChart = function() {
                 g.select('.legendWrap')
                     .datum(data.map(function(series) {
                         series.originalKey = series.originalKey === undefined ? series.key : series.originalKey;
-                        series.key = series.originalKey + (series.yAxis == 1 ? '' : ' (right axis)');
+                        series.key = series.originalKey + (series.yAxis == 1 ? '' : ' ('+(chart.legendRightAxisHint ? chart.legendRightAxisHint : 'right axis')+')');
                         return series;
                     }))
                     .call(legend);
