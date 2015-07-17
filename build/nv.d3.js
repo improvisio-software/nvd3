@@ -9349,7 +9349,7 @@ nv.models.multiChart = function() {
                 g.select('.legendWrap')
                     .datum(data.map(function(series) {
                         series.originalKey = series.originalKey === undefined ? series.key : series.originalKey;
-                        series.key = series.originalKey + (series.yAxis == 1 ? '' : ' ('+(chart.legendRightAxisHint ? chart.legendRightAxisHint : 'right axis')+')');
+                        series.key = series.originalKey + (series.yAxis == 1 ? '' : ' '+(chart.legendRightAxisHint ? chart.legendRightAxisHint : '(right axis)'));
                         return series;
                     }))
                     .call(legend);
@@ -9623,6 +9623,7 @@ nv.models.multiChart = function() {
     chart.yAxis1 = yAxis1;
     chart.yAxis2 = yAxis2;
     chart.tooltip = tooltip;
+    chart.legendRightAxisHint = legendRightAxisHint;
 
     chart.options = nv.utils.optionsFunc.bind(chart);
 
